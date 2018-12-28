@@ -2,6 +2,9 @@ import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import { ApolloServer, gql } from 'apollo-server-express';
+import schema from './graphQLSchema';
+import resolvers from './resolvers';
+import { Compliment } from './models/Compliment';
 import { connect } from './db/index';
 import { router } from './router';
 
@@ -24,22 +27,14 @@ router(app);
 
 const PORT = process.env.PORT  || 4000;
 
-const typeDefs = gql`
-    type Query {
-        hello: String
-    }
-`;
-
-const resolvers = {
-  Query: {
-    hello: () => 'Hello world!'
-  },
-};
-
-
 const server = new ApolloServer({
-  typeDefs,
+  typeDefs: schema,
   resolvers,
+  context: async({ req }) => {
+    return {
+      Compliment
+    }
+  },
   introspection: true,
 });
 server.applyMiddleware({ app });
